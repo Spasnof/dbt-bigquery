@@ -188,9 +188,16 @@
     from {{ relation }}
   {% endset %}
 
-  {% call statement('alter_column_type') %}
-    {{ create_table_as(False, relation, sql)}}
-  {%- endcall %}
+  {%- call statement('main') -%}
+  BEGIN
+  BEGIN TRANSACTION;
+    {{ build_sql }} ;
+  --end trans
+  EXCEPTION WHEN ERROR THEN
+    ROLLBACK TRANSACTION;
+  COMMIT TRANSACTION;
+  END;
+  {% endcall %}
 
 {% endmacro %}
 
